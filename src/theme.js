@@ -1,3 +1,5 @@
+import { trackEvent } from './analytics.js';
+
 const STORAGE_KEY = 'matrix-theme';
 
 export function initTheme() {
@@ -13,7 +15,10 @@ export function initTheme() {
 
 export function setTheme(theme, persist = true) {
   document.documentElement.dataset.theme = theme;
-  if (persist) localStorage.setItem(STORAGE_KEY, theme);
+  if (persist) {
+    localStorage.setItem(STORAGE_KEY, theme);
+    trackEvent('theme-change', { theme });
+  }
 
   const btn = document.getElementById('theme-toggle');
   if (btn) {

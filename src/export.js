@@ -1,5 +1,6 @@
 import { snapdom } from '@zumer/snapdom';
-import { EXPORT_H, EXPORT_W, locs, order } from './poster.js';
+import { trackEvent } from './analytics.js';
+import { EXPORT_H, EXPORT_W, getLocsPayload, locs, order } from './poster.js';
 
 const FILL_REQUIRED_MSG = '请填写完所有项目，不需要的可以删除。';
 
@@ -60,6 +61,7 @@ export async function downloadPoster() {
       height: EXPORT_H,
       backgroundColor: getComputedStyle(poster).backgroundColor,
     });
+    trackEvent('poster-download', getLocsPayload());
   } finally {
     poster.classList.remove('poster-export-mode');
     btn.disabled = false;

@@ -34,6 +34,16 @@ export const locs = {};
 export let runnerName = '';
 export let order = [];
 
+/** 当前已选训练类型及其地点，用于统计事件参数 */
+export function getLocsPayload() {
+  const payload = {};
+  for (const key of order) {
+    const value = (locs[key] ?? '').trim();
+    if (value) payload[key] = value;
+  }
+  return payload;
+}
+
 let activeKey = null;
 let pendingDeleteKey = null;
 
