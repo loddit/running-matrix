@@ -8,6 +8,17 @@ export const EXPORT_W = 1080;
 export const EXPORT_H = 1440;
 export const ALL_KEYS = ['easy', 'tempo', 'lsd', 'hill', 'int', 'test'];
 
+const POSTER_LINE_GEOMETRIES = [
+  { x1: 420, y1: 0, x2: 0, y2: 309 },
+  { x1: 420, y1: 0, x2: 0, y2: 403 },
+  { x1: 252, y1: 0, x2: 0, y2: 224 },
+  { x1: 420, y1: 168, x2: 42, y2: 560 },
+  { x1: 360, y1: 0, x2: 0, y2: 500 },
+  { x1: 420, y1: 56, x2: 84, y2: 560 },
+];
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
 export const TYPES = [
   { k: 'easy', n: '轻松', s: 'EASY', c: SKY },
   { k: 'tempo', n: '节奏', s: 'TEMPO', c: '#FF6B35' },
@@ -29,6 +40,39 @@ function resolveType(t) {
     border: `color-mix(in oklab, ${c} 28%, transparent)`,
     bar: c,
   };
+}
+
+function posterLineOpacity(index) {
+  const n = Math.min(index + 1, 4);
+  const v = cssVar(`--poster-line-opacity-${n}`);
+  if (index < 4) return v || '0.2';
+  const base = parseFloat(cssVar('--poster-line-opacity-4')) || 0.2;
+  return String(Math.max(0.08, base - (index - 3) * 0.02));
+}
+
+function renderPosterLines() {
+  const svg = document.getElementById('poster-lines');
+  if (!svg) return;
+
+  svg.replaceChildren();
+  const filledKeys = order.filter((key) => (locs[key] ?? '').trim().length > 0);
+
+  filledKeys.forEach((key, i) => {
+    const t = typeByKey(key);
+    const geom = POSTER_LINE_GEOMETRIES[i];
+    if (!t || !geom) return;
+
+    const { c } = resolveType(t);
+    const line = document.createElementNS(SVG_NS, 'line');
+    line.setAttribute('x1', String(geom.x1));
+    line.setAttribute('y1', String(geom.y1));
+    line.setAttribute('x2', String(geom.x2));
+    line.setAttribute('y2', String(geom.y2));
+    line.setAttribute('stroke', c);
+    line.setAttribute('stroke-width', '0.8');
+    line.style.opacity = posterLineOpacity(i);
+    svg.appendChild(line);
+  });
 }
 
 export const locs = {};
@@ -548,4 +592,5 @@ export function renderPoster() {
   });
 
   document.getElementById('footer-name').textContent = name ? name.slice(0, 18) : '';
+  renderPosterLines();
 }

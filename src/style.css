@@ -103,22 +103,6 @@ html[data-theme='light'] {
   --tw-ring-color: var(--poster-ring);
 }
 
-.poster-lines line:nth-child(1) {
-  opacity: var(--poster-line-opacity-1);
-}
-
-.poster-lines line:nth-child(2) {
-  opacity: var(--poster-line-opacity-2);
-}
-
-.poster-lines line:nth-child(3) {
-  opacity: var(--poster-line-opacity-3);
-}
-
-.poster-lines line:nth-child(4) {
-  opacity: var(--poster-line-opacity-4);
-}
-
 .poster-toolbar-btn {
   background: var(--toggle-bg);
   border: 1px solid var(--toggle-border);
