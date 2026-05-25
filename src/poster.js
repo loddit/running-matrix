@@ -280,13 +280,29 @@ function addType(key) {
   renderPoster();
 }
 
-function getDropIndex(rowsEl, clientY) {
+/** 插入到 destIndex 行之前；destIndex === order.length 表示插到末尾 */
+function resolveDropDest(fromIndex, destIndex) {
+  if (destIndex === fromIndex || destIndex === fromIndex + 1) return fromIndex;
+  let insertAt = destIndex;
+  if (fromIndex < destIndex) insertAt--;
+  return insertAt;
+}
+
+function getDropIndex(rowsEl, clientY, dragKey) {
   const rows = [...rowsEl.querySelectorAll('[data-key]')];
-  for (let i = 0; i < rows.length; i++) {
-    const { top, height } = rows[i].getBoundingClientRect();
-    if (clientY < top + height / 2) return i;
+  let lastRow = null;
+
+  for (const row of rows) {
+    if (row.dataset.key === dragKey) continue;
+    const rect = row.getBoundingClientRect();
+    lastRow = row;
+    if (clientY < rect.top + rect.height / 2) {
+      return order.indexOf(row.dataset.key);
+    }
   }
-  return Math.max(0, rows.length - 1);
+
+  if (lastRow) return order.length;
+  return order.indexOf(dragKey);
 }
 
 function getRowGap(rowsEl) {
@@ -297,12 +313,14 @@ function getRowGap(rowsEl) {
   return Math.max(0, second.top - first.bottom);
 }
 
-function reorderByDrag(fromKey, toIndex) {
+function reorderByDrag(fromKey, destIndex) {
   const fromIndex = order.indexOf(fromKey);
-  if (fromIndex === -1 || fromIndex === toIndex) return;
+  if (fromIndex === -1) return;
+  const targetIndex = resolveDropDest(fromIndex, destIndex);
+  if (targetIndex === fromIndex) return;
   const next = [...order];
   const [item] = next.splice(fromIndex, 1);
-  next.splice(toIndex, 0, item);
+  next.splice(targetIndex, 0, item);
   order = next;
   saveState();
 }
@@ -316,10 +334,10 @@ function clearDragShifts(rowsEl) {
 
 function updateDragShifts(rowsEl) {
   const fromIndex = order.indexOf(dragState.key);
-  const toIndex = dragState.dropIndex;
-  if (dragState.lastShiftFrom === fromIndex && dragState.lastShiftTo === toIndex) return;
+  const targetIndex = resolveDropDest(fromIndex, dragState.dropIndex);
+  if (dragState.lastShiftFrom === fromIndex && dragState.lastShiftTo === targetIndex) return;
   dragState.lastShiftFrom = fromIndex;
-  dragState.lastShiftTo = toIndex;
+  dragState.lastShiftTo = targetIndex;
 
   const h = dragState.shiftPx;
   rowsEl.querySelectorAll('[data-key]').forEach((row) => {
@@ -327,8 +345,8 @@ function updateDragShifts(rowsEl) {
     if (row.dataset.key === dragState.key) return;
 
     let ty = 0;
-    if (fromIndex < toIndex && idx > fromIndex && idx <= toIndex) ty = -h;
-    else if (fromIndex > toIndex && idx >= toIndex && idx < fromIndex) ty = h;
+    if (fromIndex < targetIndex && idx > fromIndex && idx <= targetIndex) ty = -h;
+    else if (fromIndex > targetIndex && idx >= targetIndex && idx < fromIndex) ty = h;
 
     row.style.transform = ty ? `translateY(${ty}px)` : '';
   });
@@ -362,7 +380,7 @@ function startDragAnimation(rowsEl, row, e) {
   dragState.offsetY = e.clientY - rect.top;
   dragState.offsetX = e.clientX - rect.left;
   dragState.shiftPx = rect.height + getRowGap(rowsEl);
-  dragState.dropIndex = order.indexOf(row.dataset.key);
+  dragState.dropIndex = order.indexOf(row.dataset.key) + 1;
   dragState.lastShiftFrom = -1;
   dragState.lastShiftTo = -1;
 }
@@ -413,14 +431,14 @@ function initRowDrag(rowsEl) {
     if (!dragState.moved) return;
 
     moveGhost(e);
-    dragState.dropIndex = getDropIndex(rowsEl, e.clientY);
+    dragState.dropIndex = getDropIndex(rowsEl, e.clientY, dragState.key);
     updateDragShifts(rowsEl);
   });
 
   const endDrag = (e) => {
     if (!dragState || e.pointerId !== dragState.pointerId) return;
 
-    const { key, row, handle, moved, dropIndex, ghost } = dragState;
+    const { key, row, handle, moved, ghost } = dragState;
 
     if (!moved) {
       cleanupDrag(rowsEl, row, handle, e);
@@ -429,11 +447,12 @@ function initRowDrag(rowsEl) {
 
     suppressRowClick = true;
     const fromIndex = order.indexOf(key);
-    const toIndex = dropIndex ?? fromIndex;
-    const landing = getLandingRect(rowsEl, fromIndex, toIndex);
+    const destIndex = getDropIndex(rowsEl, e.clientY, key);
+    const targetIndex = resolveDropDest(fromIndex, destIndex);
+    const landing = getLandingRect(rowsEl, fromIndex, targetIndex);
 
     const finish = () => {
-      reorderByDrag(key, toIndex);
+      reorderByDrag(key, destIndex);
       cleanupDrag(rowsEl, row, handle, e);
       renderPoster();
     };
