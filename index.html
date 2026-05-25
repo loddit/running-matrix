@@ -43,38 +43,38 @@
     <div class="min-h-dvh w-full flex items-center justify-center p-4 md:p-8">
       <div
         id="poster"
-        class="poster-surface relative overflow-hidden shrink-0 aspect-[420/620] rounded-[28px] ring-1 md:rounded-[36px] transition-[background-color,box-shadow] duration-300"
+        class="poster-surface relative overflow-hidden shrink-0 aspect-[3/4] rounded-[28px] ring-1 md:rounded-[36px] transition-[background-color,box-shadow] duration-300"
       >
         <div class="poster-grid absolute inset-0"></div>
 
         <svg
           class="poster-lines absolute inset-0 w-full h-full"
-          viewBox="0 0 420 620"
+          viewBox="0 0 420 560"
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          <line x1="420" y1="0" x2="0" y2="342" class="stroke-sky-500" stroke-width="0.8" opacity="0.13" />
-          <line x1="420" y1="0" x2="0" y2="446" stroke="#00E5FF" stroke-width="0.8" opacity="0.09" />
-          <line x1="252" y1="0" x2="0" y2="248" stroke="#C77DFF" stroke-width="0.8" opacity="0.08" />
-          <line x1="420" y1="186" x2="42" y2="620" stroke="#FF3CAC" stroke-width="0.8" opacity="0.07" />
+          <line x1="420" y1="0" x2="0" y2="309" class="stroke-sky-500" stroke-width="0.8" />
+          <line x1="420" y1="0" x2="0" y2="403" stroke="#00E5FF" stroke-width="0.8" />
+          <line x1="252" y1="0" x2="0" y2="224" stroke="#C77DFF" stroke-width="0.8" />
+          <line x1="420" y1="168" x2="42" y2="560" stroke="#FF3CAC" stroke-width="0.8" />
           <polyline class="poster-corner" points="24,35 24,20 54,20" fill="none" stroke-width="0.8" />
           <polyline class="poster-corner" points="396,35 396,20 366,20" fill="none" stroke-width="0.8" />
-          <polyline class="poster-corner" points="24,585 24,600 54,600" fill="none" stroke-width="0.8" />
-          <polyline class="poster-corner" points="396,585 396,600 366,600" fill="none" stroke-width="0.8" />
+          <polyline class="poster-corner" points="24,528 24,542 54,542" fill="none" stroke-width="0.8" />
+          <polyline class="poster-corner" points="396,528 396,542 366,542" fill="none" stroke-width="0.8" />
         </svg>
 
-        <div class="poster-content absolute inset-0 flex flex-col px-[6.667cqw] pt-[5.348cqh] pb-[3.743cqh]">
+        <div class="poster-content absolute inset-0 flex flex-col px-[6.667cqw] pt-8 pb-8">
           <div class="mb-[0.535cqh] ml-[1cqh] leading-none">
             <div class="hero-title text-[var(--poster-text)] font-black leading-none">RUNNING</div>
             <div class="hero-title matrix-outline font-black leading-none">MATRIX</div>
-            <div class="hero-accent my-[0.5cqh] text-gray-500">
+            <div class="hero-accent my-[1cqh] text-gray-500 font-semibold">
               #我的跑步矩阵
             </div>
           </div>
 
           <div class="mt-3 mb-3 h-px w-full bg-[var(--poster-divider)]"></div>
 
-          <div id="poster-rows" class="flex flex-col gap-[1.2cqh] flex-1"></div>
+          <div id="poster-rows" class="flex flex-col gap-[2cqh] flex-1"></div>
 
           <div class="mt-3 pt-3 border-t border-[var(--poster-divider)] flex items-center justify-between">
             <div id="footer-dots" class="flex items-center gap-[7px]"></div>

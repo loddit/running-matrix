@@ -2,7 +2,10 @@ import { cssVar } from './theme.js';
 
 const SKY = 'var(--color-sky-500)';
 const STORAGE_KEY = 'matrix-poster';
-export const POSTER_H = 620;
+export const POSTER_W = 420;
+export const POSTER_H = 560;
+export const EXPORT_W = 1080;
+export const EXPORT_H = 1440;
 export const ALL_KEYS = ['easy', 'tempo', 'lsd', 'hill', 'int'];
 
 export const TYPES = [

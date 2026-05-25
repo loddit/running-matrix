@@ -24,9 +24,13 @@ html[data-theme='dark'] {
   --row-type-empty: rgba(255, 255, 255, 0.08);
   --row-loc-text: #ffffff;
   --dot-empty-border: rgba(255, 255, 255, 0.15);
-  --grid-line: rgba(255, 255, 255, 0.04);
+  --grid-line: rgba(255, 255, 255, 0.085);
   --corner-stroke: #ffffff;
-  --corner-opacity: 0.22;
+  --corner-opacity: 0.35;
+  --poster-line-opacity-1: 0.28;
+  --poster-line-opacity-2: 0.24;
+  --poster-line-opacity-3: 0.22;
+  --poster-line-opacity-4: 0.2;
   --poster-ring: rgba(255, 255, 255, 0.06);
   --poster-shadow: 0 28px 90px rgba(0, 0, 0, 0.55);
   --toggle-bg: rgba(255, 255, 255, 0.08);
@@ -66,6 +70,10 @@ html[data-theme='light'] {
   --grid-line: rgba(10, 13, 24, 0.05);
   --corner-stroke: #0a0d18;
   --corner-opacity: 0.18;
+  --poster-line-opacity-1: 0.18;
+  --poster-line-opacity-2: 0.14;
+  --poster-line-opacity-3: 0.12;
+  --poster-line-opacity-4: 0.1;
   --poster-ring: rgba(10, 13, 24, 0.06);
   --poster-shadow: 0 28px 90px rgba(10, 13, 24, 0.12);
   --toggle-bg: rgba(10, 13, 24, 0.05);
@@ -116,20 +124,20 @@ html[data-theme='light'] {
   opacity: var(--corner-opacity);
 }
 
-html[data-theme='light'] .poster-lines line {
-  opacity: 0.18;
+.poster-lines line:nth-child(1) {
+  opacity: var(--poster-line-opacity-1);
 }
 
-html[data-theme='light'] .poster-lines line:nth-child(2) {
-  opacity: 0.14;
+.poster-lines line:nth-child(2) {
+  opacity: var(--poster-line-opacity-2);
 }
 
-html[data-theme='light'] .poster-lines line:nth-child(3) {
-  opacity: 0.12;
+.poster-lines line:nth-child(3) {
+  opacity: var(--poster-line-opacity-3);
 }
 
-html[data-theme='light'] .poster-lines line:nth-child(4) {
-  opacity: 0.1;
+.poster-lines line:nth-child(4) {
+  opacity: var(--poster-line-opacity-4);
 }
 
 .poster-toolbar-btn {
@@ -156,26 +164,123 @@ html[data-theme='light'] #theme-toggle .icon-moon {
   display: block;
 }
 
-/* 导出截图：固定 420×620、无圆角、隐藏编辑控件，避免 cqw 在 snapdom 中失效导致换行 */
+/* 导出截图：固定 1080×1440（3:4）、无圆角、隐藏编辑控件，避免 cqw 在 snapdom 中失效导致换行 */
 #poster.poster-export-mode {
+  --export-s: calc(18 / 7); /* 1080 / 420 = 1440 / 560 */
   border-radius: 0 !important;
-  width: 420px !important;
-  height: 620px !important;
-  max-width: 420px !important;
-  max-height: 620px !important;
+  width: 1080px !important;
+  height: 1440px !important;
+  max-width: 1080px !important;
+  max-height: 1440px !important;
 }
 
 #poster.poster-export-mode .poster-content {
-  padding: 34px 28px 24px;
+  padding: calc(30px * var(--export-s)) calc(28px * var(--export-s)) calc(21px * var(--export-s));
+}
+
+#poster.poster-export-mode .poster-content > div:first-child {
+  margin-bottom: calc(3px * var(--export-s));
+  margin-left: calc(5.6px * var(--export-s));
+}
+
+#poster.poster-export-mode .hero-title {
+  font-size: calc(67.2px * var(--export-s));
+  letter-spacing: calc(-3px * var(--export-s));
+}
+
+#poster.poster-export-mode .matrix-outline {
+  -webkit-text-stroke-width: calc(1.2px * var(--export-s));
+}
+
+#poster.poster-export-mode .hero-accent {
+  width: calc(117.6px * var(--export-s));
+  margin-top: calc(2.8px * var(--export-s));
+  margin-bottom: calc(2.8px * var(--export-s));
+  font-size: calc(16.8px * var(--export-s));
+}
+
+#poster.poster-export-mode .poster-content > .h-px {
+  margin-top: calc(12px * var(--export-s));
+  margin-bottom: calc(12px * var(--export-s));
 }
 
 #poster.poster-export-mode #poster-rows {
-  gap: 9px;
+  gap: calc(8px * var(--export-s));
 }
 
 #poster.poster-export-mode .poster-row {
-  height: 46px;
-  border-radius: 3px;
+  height: calc(42px * var(--export-s));
+  border-radius: calc(3px * var(--export-s));
+}
+
+#poster.poster-export-mode .poster-row-bar {
+  width: calc(3px * var(--export-s));
+  border-radius: calc(6px * var(--export-s)) 0 0 calc(6px * var(--export-s));
+}
+
+#poster.poster-export-mode .poster-row-label-col {
+  width: calc(58px * var(--export-s));
+  min-width: calc(58px * var(--export-s));
+}
+
+#poster.poster-export-mode .poster-row-label-en {
+  font-size: calc(9.5px * var(--export-s));
+  letter-spacing: calc(1px * var(--export-s));
+}
+
+#poster.poster-export-mode .poster-row-label-cn {
+  margin-top: calc(2px * var(--export-s));
+  font-size: calc(9px * var(--export-s));
+}
+
+#poster.poster-export-mode .poster-row-col-divider,
+#poster.poster-export-mode .poster-row-handle-divider {
+  height: calc(28px * var(--export-s));
+}
+
+#poster.poster-export-mode .poster-row-loc {
+  padding: 0 calc(12px * var(--export-s));
+}
+
+#poster.poster-export-mode .poster-row-loc-text {
+  font-size: calc(15px * var(--export-s));
+  letter-spacing: calc(-0.3px * var(--export-s));
+}
+
+#poster.poster-export-mode .poster-row-index {
+  width: calc(34px * var(--export-s));
+  font-size: calc(9px * var(--export-s));
+}
+
+#poster.poster-export-mode .poster-content > .border-t {
+  margin-top: calc(12px * var(--export-s));
+  padding-top: calc(12px * var(--export-s));
+}
+
+#poster.poster-export-mode #footer-dots {
+  gap: calc(7px * var(--export-s));
+}
+
+#poster.poster-export-mode #footer-dots > div {
+  width: calc(7px * var(--export-s)) !important;
+  height: calc(7px * var(--export-s)) !important;
+}
+
+#poster.poster-export-mode #footer-name {
+  font-size: calc(11px * var(--export-s));
+}
+
+#poster.poster-export-mode #footer-credit {
+  font-size: calc(9px * var(--export-s));
+  gap: calc(4px * var(--export-s));
+}
+
+#poster.poster-export-mode #footer-credit img {
+  width: calc(36px * var(--export-s));
+}
+
+#poster.poster-export-mode .poster-grid {
+  background-size: calc(28px * var(--export-s)) calc(28px * var(--export-s));
 }
 
 #poster.poster-export-mode .poster-row-delete,
@@ -183,11 +288,11 @@ html[data-theme='light'] #theme-toggle .icon-moon {
   display: none !important;
 }
 
-/* 420×620 画布：随视口等比缩放；桌面端限制最大高度，避免占满整屏 */
+/* 420×560（3:4）画布：随视口等比缩放；桌面端限制最大高度，避免占满整屏 */
 #poster {
   --poster-max-h: calc(100dvh - 2rem);
-  width: min(calc(100vw - 2rem), calc(var(--poster-max-h) * 420 / 620));
-  height: min(var(--poster-max-h), calc((100vw - 2rem) * 620 / 420));
+  width: min(calc(100vw - 2rem), calc(var(--poster-max-h) * 3 / 4));
+  height: min(var(--poster-max-h), calc((100vw - 2rem) * 4 / 3));
   max-width: calc(100vw - 2rem);
   max-height: var(--poster-max-h);
   container-type: size;
@@ -197,14 +302,14 @@ html[data-theme='light'] #theme-toggle .icon-moon {
 @media (min-width: 768px) {
   #poster {
     --poster-max-h: min(calc(100dvh - 4rem), 660px);
-    width: min(calc(100vw - 4rem), calc(var(--poster-max-h) * 420 / 620));
-    height: min(var(--poster-max-h), calc((100vw - 4rem) * 620 / 420));
+    width: min(calc(100vw - 4rem), calc(var(--poster-max-h) * 3 / 4));
+    height: min(var(--poster-max-h), calc((100vw - 4rem) * 4 / 3));
     max-width: calc(100vw - 4rem);
   }
 }
 
 .hero-title {
-  font-size: 16cqw; /* 72/420 */
+  font-size: 17cqw; /* 72/420 */
   letter-spacing: -0.714cqw; /* -3/420 */
 }
 

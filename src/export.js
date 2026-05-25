@@ -1,5 +1,5 @@
 import { snapdom } from '@zumer/snapdom';
-import { locs, order } from './poster.js';
+import { EXPORT_H, EXPORT_W, locs, order } from './poster.js';
 
 const FILL_REQUIRED_MSG = '请填写完所有项目，不需要的可以删除。';
 
@@ -56,7 +56,8 @@ export async function downloadPoster() {
     await snapdom.download(poster, {
       format: 'png',
       filename: 'running-matrix.png',
-      scale: 2,
+      width: EXPORT_W,
+      height: EXPORT_H,
       backgroundColor: getComputedStyle(poster).backgroundColor,
     });
   } finally {
