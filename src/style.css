@@ -361,6 +361,10 @@ html[data-theme='light'] #theme-toggle .icon-moon {
   pointer-events: none;
 }
 
+#poster-rows.poster-rows--drag-active {
+  touch-action: none;
+}
+
 #poster-rows.poster-rows--drag-active [data-key]:not(.poster-row--placeholder) {
   transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -382,15 +386,30 @@ html[data-theme='light'] .poster-row-ghost {
   box-shadow: 0 14px 36px rgba(10, 13, 24, 0.16);
 }
 
+body.poster-dragging {
+  touch-action: none;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 .poster-row-handle {
   display: flex;
   align-items: center;
   flex-shrink: 0;
   height: 100%;
+  min-width: 44px;
   cursor: grab;
   touch-action: none;
+  -webkit-touch-callout: none;
   user-select: none;
   -webkit-user-select: none;
+}
+
+@media (pointer: coarse) {
+  .poster-row-handle {
+    min-width: 48px;
+    padding-right: 6px;
+  }
 }
 
 .poster-row-handle:active {

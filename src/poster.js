@@ -375,6 +375,7 @@ function startDragAnimation(rowsEl, row, e) {
 
   row.classList.add('poster-row--placeholder');
   rowsEl.classList.add('poster-rows--drag-active');
+  setPageDragLock(true);
 
   dragState.ghost = ghost;
   dragState.offsetY = e.clientY - rect.top;
@@ -391,97 +392,154 @@ function moveGhost(e) {
   dragState.ghost.style.top = `${e.clientY - dragState.offsetY}px`;
 }
 
+const DRAG_MOVE_OPTS = { passive: false, capture: true };
+
+let dragDocListenersBound = false;
+let dragRowsEl = null;
+
+function dragThreshold(pointerType) {
+  return pointerType === 'touch' ? 4 : 6;
+}
+
+function setPageDragLock(on) {
+  document.body.classList.toggle('poster-dragging', on);
+}
+
+function releasePointerCaptureSafe(handle, pointerId) {
+  if (!handle?.hasPointerCapture?.(pointerId)) return;
+  try {
+    handle.releasePointerCapture(pointerId);
+  } catch {
+    /* already released on some touch browsers */
+  }
+}
+
+function bindDragDocListeners(rowsEl) {
+  if (dragDocListenersBound) return;
+  dragDocListenersBound = true;
+  dragRowsEl = rowsEl;
+  document.addEventListener('pointermove', onDragPointerMove, DRAG_MOVE_OPTS);
+  document.addEventListener('pointerup', onDragPointerEnd);
+  document.addEventListener('pointercancel', onDragPointerEnd);
+}
+
+function unbindDragDocListeners() {
+  if (!dragDocListenersBound) return;
+  dragDocListenersBound = false;
+  dragRowsEl = null;
+  document.removeEventListener('pointermove', onDragPointerMove, DRAG_MOVE_OPTS);
+  document.removeEventListener('pointerup', onDragPointerEnd);
+  document.removeEventListener('pointercancel', onDragPointerEnd);
+}
+
+function onDragPointerMove(e) {
+  if (!dragState || !dragRowsEl || e.pointerId !== dragState.pointerId) return;
+  if (e.cancelable) e.preventDefault();
+
+  if (!dragState.moved && Math.abs(e.clientY - dragState.startY) > dragThreshold(e.pointerType)) {
+    dragState.moved = true;
+    startDragAnimation(dragRowsEl, dragState.row, e);
+  }
+
+  if (!dragState.moved) return;
+
+  moveGhost(e);
+  dragState.dropIndex = getDropIndex(dragRowsEl, e.clientY, dragState.key);
+  updateDragShifts(dragRowsEl);
+}
+
+function onDragPointerEnd(e) {
+  if (!dragState || !dragRowsEl || e.pointerId !== dragState.pointerId) return;
+
+  const rowsEl = dragRowsEl;
+  const { key, row, handle, moved, ghost } = dragState;
+  unbindDragDocListeners();
+
+  if (!moved) {
+    cleanupDrag(rowsEl, row, handle, e);
+    return;
+  }
+
+  suppressRowClick = true;
+  const fromIndex = order.indexOf(key);
+  const destIndex = getDropIndex(rowsEl, e.clientY, key);
+  const targetIndex = resolveDropDest(fromIndex, destIndex);
+  const landing = getLandingRect(rowsEl, fromIndex, targetIndex);
+
+  const finish = () => {
+    reorderByDrag(key, destIndex);
+    cleanupDrag(rowsEl, row, handle, e);
+    renderPoster();
+  };
+
+  if (ghost && landing) {
+    ghost.style.transition =
+      'top 0.24s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.24s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.24s ease, box-shadow 0.24s ease, opacity 0.24s ease';
+    ghost.style.left = `${landing.left}px`;
+    ghost.style.top = `${landing.top}px`;
+    ghost.style.width = `${landing.width}px`;
+    ghost.style.height = `${landing.height}px`;
+    ghost.style.transform = 'scale(1)';
+    ghost.style.opacity = '1';
+
+    let done = false;
+    const onEnd = () => {
+      if (done) return;
+      done = true;
+      finish();
+    };
+    ghost.addEventListener('transitionend', onEnd, { once: true });
+    setTimeout(onEnd, 280);
+  } else {
+    finish();
+  }
+}
+
 function cleanupDrag(rowsEl, row, handle, e, removeGhost = true) {
+  unbindDragDocListeners();
   if (dragState?.ghost && removeGhost) dragState.ghost.remove();
   row?.classList.remove('poster-row--placeholder');
   rowsEl.classList.remove('poster-rows--drag-active');
   clearDragShifts(rowsEl);
-  handle?.releasePointerCapture(e.pointerId);
+  if (e) releasePointerCaptureSafe(handle, e.pointerId);
+  setPageDragLock(false);
   dragState = null;
 }
 
 function initRowDrag(rowsEl) {
-  rowsEl.addEventListener('pointerdown', (e) => {
-    const handle = e.target.closest('[data-drag-handle]');
-    if (!handle) return;
+  rowsEl.addEventListener(
+    'pointerdown',
+    (e) => {
+      const handle = e.target.closest('[data-drag-handle]');
+      if (!handle) return;
 
-    const row = handle.closest('[data-key]');
-    if (!row) return;
+      const row = handle.closest('[data-key]');
+      if (!row) return;
 
-    e.preventDefault();
-    handle.setPointerCapture(e.pointerId);
-    dragState = {
-      key: row.dataset.key,
-      pointerId: e.pointerId,
-      row,
-      handle,
-      startY: e.clientY,
-      moved: false,
-    };
-  });
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
 
-  rowsEl.addEventListener('pointermove', (e) => {
-    if (!dragState || e.pointerId !== dragState.pointerId) return;
-
-    if (!dragState.moved && Math.abs(e.clientY - dragState.startY) > 6) {
-      dragState.moved = true;
-      startDragAnimation(rowsEl, dragState.row, e);
-    }
-
-    if (!dragState.moved) return;
-
-    moveGhost(e);
-    dragState.dropIndex = getDropIndex(rowsEl, e.clientY, dragState.key);
-    updateDragShifts(rowsEl);
-  });
-
-  const endDrag = (e) => {
-    if (!dragState || e.pointerId !== dragState.pointerId) return;
-
-    const { key, row, handle, moved, ghost } = dragState;
-
-    if (!moved) {
-      cleanupDrag(rowsEl, row, handle, e);
-      return;
-    }
-
-    suppressRowClick = true;
-    const fromIndex = order.indexOf(key);
-    const destIndex = getDropIndex(rowsEl, e.clientY, key);
-    const targetIndex = resolveDropDest(fromIndex, destIndex);
-    const landing = getLandingRect(rowsEl, fromIndex, targetIndex);
-
-    const finish = () => {
-      reorderByDrag(key, destIndex);
-      cleanupDrag(rowsEl, row, handle, e);
-      renderPoster();
-    };
-
-    if (ghost && landing) {
-      ghost.style.transition =
-        'top 0.24s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.24s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.24s ease, box-shadow 0.24s ease, opacity 0.24s ease';
-      ghost.style.left = `${landing.left}px`;
-      ghost.style.top = `${landing.top}px`;
-      ghost.style.width = `${landing.width}px`;
-      ghost.style.height = `${landing.height}px`;
-      ghost.style.transform = 'scale(1)';
-      ghost.style.opacity = '1';
-
-      let done = false;
-      const onEnd = () => {
-        if (done) return;
-        done = true;
-        finish();
+      e.preventDefault();
+      bindDragDocListeners(rowsEl);
+      handle.setPointerCapture(e.pointerId);
+      dragState = {
+        key: row.dataset.key,
+        pointerId: e.pointerId,
+        row,
+        handle,
+        startY: e.clientY,
+        moved: false,
       };
-      ghost.addEventListener('transitionend', onEnd, { once: true });
-      setTimeout(onEnd, 280);
-    } else {
-      finish();
-    }
-  };
 
-  rowsEl.addEventListener('pointerup', endDrag);
-  rowsEl.addEventListener('pointercancel', endDrag);
+      handle.addEventListener(
+        'lostpointercapture',
+        (ev) => {
+          if (dragState?.pointerId === ev.pointerId) onDragPointerEnd(ev);
+        },
+        { once: true },
+      );
+    },
+    { passive: false },
+  );
 }
 
 function renderRow(key, index, rowsEl, v) {
