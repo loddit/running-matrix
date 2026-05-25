@@ -6,14 +6,15 @@ export const POSTER_W = 420;
 export const POSTER_H = 560;
 export const EXPORT_W = 1080;
 export const EXPORT_H = 1440;
-export const ALL_KEYS = ['easy', 'tempo', 'lsd', 'hill', 'int'];
+export const ALL_KEYS = ['easy', 'tempo', 'lsd', 'hill', 'int', 'test'];
 
 export const TYPES = [
-  { k: 'easy', n: '轻松跑', s: 'EASY', c: SKY },
-  { k: 'tempo', n: '节奏跑', s: 'TEMPO', c: '#FF6B35' },
+  { k: 'easy', n: '轻松', s: 'EASY', c: SKY },
+  { k: 'tempo', n: '节奏', s: 'TEMPO', c: '#FF6B35' },
   { k: 'lsd', n: '长距离', s: 'LSD', cDark: '#00E5FF', cLight: 'var(--color-cyan-600)' },
   { k: 'hill', n: '爬坡', s: 'HILL', c: '#FF3CAC' },
-  { k: 'int', n: '间歇跑', s: 'INT', c: '#C77DFF' },
+  { k: 'int', n: '间歇', s: 'INT', c: '#C77DFF' },
+  { k: 'test', n: '自测', s: 'TEST', c: 'var(--color-green-500)' },
 ];
 
 function isLightTheme() {
