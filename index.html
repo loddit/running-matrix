@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Running Matrix</title>
+    <script>
+      (function () {
+        var t = localStorage.getItem('matrix-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      })();
+    </script>
+  </head>
+  <body class="min-h-dvh bg-[var(--matrix-page-bg)] text-[var(--page-text)] transition-colors duration-300">
+    <div class="poster-toolbar fixed top-4 right-4 z-10 flex items-center gap-2">
+      <button
+        id="download-poster"
+        type="button"
+        class="poster-toolbar-btn flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-sm transition-colors duration-300"
+        aria-label="下载海报截图"
+      >
+        <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+          <path d="M12 3v12m0 0l4-4m-4 4L8 11" />
+          <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+        </svg>
+      </button>
+      <button
+        id="theme-toggle"
+        type="button"
+        class="poster-toolbar-btn flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-sm transition-colors duration-300"
+        aria-label="切换到浅色模式"
+      >
+        <svg class="icon-sun h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </svg>
+        <svg class="icon-moon h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="min-h-dvh w-full flex items-center justify-center p-4 md:p-8">
+      <div
+        id="poster"
+        class="poster-surface relative overflow-hidden shrink-0 aspect-[420/620] rounded-[28px] ring-1 md:rounded-[36px] transition-[background-color,box-shadow] duration-300"
+      >
+        <div class="poster-grid absolute inset-0"></div>
+
+        <svg
+          class="poster-lines absolute inset-0 w-full h-full"
+          viewBox="0 0 420 620"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <line x1="420" y1="0" x2="0" y2="342" class="stroke-sky-500" stroke-width="0.8" opacity="0.13" />
+          <line x1="420" y1="0" x2="0" y2="446" stroke="#00E5FF" stroke-width="0.8" opacity="0.09" />
+          <line x1="252" y1="0" x2="0" y2="248" stroke="#C77DFF" stroke-width="0.8" opacity="0.08" />
+          <line x1="420" y1="186" x2="42" y2="620" stroke="#FF3CAC" stroke-width="0.8" opacity="0.07" />
+          <polyline class="poster-corner" points="24,35 24,20 54,20" fill="none" stroke-width="0.8" />
+          <polyline class="poster-corner" points="396,35 396,20 366,20" fill="none" stroke-width="0.8" />
+          <polyline class="poster-corner" points="24,585 24,600 54,600" fill="none" stroke-width="0.8" />
+          <polyline class="poster-corner" points="396,585 396,600 366,600" fill="none" stroke-width="0.8" />
+        </svg>
+
+        <div class="poster-content absolute inset-0 flex flex-col px-[6.667cqw] pt-[5.348cqh] pb-[3.743cqh]">
+          <div class="mb-[0.535cqh] ml-[1cqh] leading-none">
+            <div class="hero-title text-[var(--poster-text)] font-black leading-none">RUNNING</div>
+            <div class="hero-title matrix-outline font-black leading-none">MATRIX</div>
+            <div class="hero-accent my-[0.5cqh] text-gray-500">
+              #我的跑步矩阵
+            </div>
+          </div>
+
+          <div class="mt-3 mb-3 h-px w-full bg-[var(--poster-divider)]"></div>
+
+          <div id="poster-rows" class="flex flex-col gap-[1.2cqh] flex-1"></div>
+
+          <div class="mt-3 pt-3 border-t border-[var(--poster-divider)] flex items-center justify-between">
+            <div id="footer-dots" class="flex items-center gap-[7px]"></div>
+            <div class="text-right">
+              <p id="footer-name" class="text-[var(--poster-text-muted)] font-medium text-[11px] tracking-wide"></p>
+              <p
+                id="footer-credit"
+                class="text-[var(--poster-text-muted)] font-mono text-[9px] tracking-widest mt-0.5 flex items-center gap-1 items-start pr-1"
+              >
+                Presented by
+                <a href="https://parco.run" target="_blank">
+                  <img alt="Pace Charts" width="36" src="data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjIiIHZpZXdCb3g9IjAgMCAzMDAgODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgZmlsbD0iIzBlYTVlOSI+CjxwYXRoIGQ9Im00MS4yOTMgNTkuNDU0aC0xNS45NHYxOC41MTVoLTI0LjUyM3YtNzYuNjM1aDM4LjYyNHEyNi4zNjMgMCAyNi4zNjMgMjguMzI0IDAgMTUuNTcyLTYuODY2NiAyMy4wNTItMi41NzUgMi44MjAyLTcuMTExNyA0Ljc4Mi00LjUzNjggMS45NjE4LTEwLjU0NSAxLjk2MTh6bS0xNS45NC0zOC41MDF2MTguODgzaDUuNjQwM3E0LjQxNDEgMCA2LjQzNzQtMC45MTk2MyAyLjAyMzEtMC45MTk2MyAyLjAyMzEtNC4yMzAzdi04LjU4MzFxMC0zLjMxMDYtMi4wMjMxLTQuMjMwM3QtNi40Mzc0LTAuOTE5NjN6IiBzdHJva2Utd2lkdGg9Ii4xMjI2MiIvPgo8cGF0aCBkPSJtMTAxLjM5IDE0LjU4cTI5LjQyOCAwIDI5LjQyOCAyMC4yMzF2NDIuOTE1aC0xMi4yNjJsLTYuOTg5MS02Ljk4OTFxLTMuNTU1OSA0LjE2OS05LjY4NjcgNi40OTg3LTYuMTMwOCAyLjMyOTctMTEuNTg3IDIuMzI5Ny01LjQ1NjUgMC04Ljc2NzEtMC44NTgzMS0zLjMxMDYtMC44NTgzMi02LjQ5ODctMi45NDI4LTYuOTg5MS00LjQxNDMtNi45ODkxLTE2LjQzMSAwLTIyLjA3MSAzMy4zNTEtMjIuMDcxaDQuOTA0NnYtNC40MTQxcS0zLjkyMzctMC4yNDUyMy02LjQ5ODctMC4yNDUyMy0xMy44NTYgMC0yMy43ODcgMy4zMTA2bC0yLjk0MjgtMTcuNTM0cTEyLjI2Mi0zLjgwMTEgMjguMzI0LTMuODAxMXptLTguNTgzMSA0Mi4wNTd2NS4wMjczaDUuMDI3M3E1LjM5NTIgMCA2LjkyNzktMS4yMjYyIDEuNTMyNy0xLjIyNjIgMS41MzI3LTMuMTg4di01Ljc2MjloLTUuMDI3M3EtNC40MTQyIDAtNi40Mzc0IDAuOTE5NjMtMi4wMjMxIDAuOTE5NjMtMi4wMjMxIDQuMjMwM3oiIHN0cm9rZS13aWR0aD0iLjEyMjYyIi8+CjxwYXRoIGQ9Im0xMzguOTEgMTYuNjYxaDEyLjI2Mmw2Ljc0MzggNi44NjY2cTcuMjM0NC02LjYyMTMgMTguMTQ3LTguNzA1OGwxLjQ3MTQgMjMuMTc1cS0yLjk0MjggMC4xMjI2Mi03LjY2MzYgMS40NzE0LTQuNzIwNyAxLjM0ODgtNi40Mzc0IDMuNDMzMnYzNS4wNjloLTI0LjUyM3oiIHN0cm9rZS13aWR0aD0iLjEyMjYyIi8+CjxwYXRoIGQ9Im0yMzAuNSA1OS4zMzQgMS40NzE0IDE3LjY1N3EtNi4zNzYxIDIuNTc1LTE2LjQzMSAyLjU3NS0xNy4xNjcgMC0yNC44My04LjAzMTMtNy42NjM1LTguMDMxMy03LjY2MzUtMjQuNDYyIDAtMTYuNDMxIDcuNjYzNS0yNC40NjIgNy42NjM2LTguMDMxMyAyNC44My04LjAzMTMgMTAuNjY4IDAgMTYuNDMxIDIuNTc1bC0yLjk0MjggMTYuNjc2cS02LjQ5ODctMS4zNDg4LTEwLjMtMS4zNDg4LTkuMzE4OCAwLTkuMzE4OCA2LjQ5ODd2MjEuOTQ5cTMuNTU1OSAwLjczNTcgOS4xMzQ5IDAuNzM1NyA1LjU3OSAwIDExLjk1NS0yLjMyOTd6IiBzdHJva2Utd2lkdGg9Ii4xMjI2MiIvPgo8cGF0aCBkPSJtMjQyLjU5IDcxLjUzNHEtNy42NjM2LTguMDMxMy03LjY2MzYtMjQuNDYyIDAtMTYuNDMxIDcuNjYzNi0yNC40NjIgNy42NjM2LTguMDMxMyAyNC44My04LjAzMTMgMTcuMTY3IDAgMjQuODMgOC4wMzEzIDcuNjYzNiA4LjAzMTMgNy42NjM2IDI0LjQ2MiAwIDE2LjQzMS03LjY2MzYgMjQuNDYyLTcuNjYzNiA4LjAzMTMtMjQuODMgOC4wMzEzLTE3LjE2NyAwLTI0LjgzLTguMDMxM3ptMTguNy0zMy45MDR2MjQuMDMzaDMuODAxMXE0LjQxNDIgMCA2LjQzNzQtMC45MTk2MyAyLjAyMzEtMC45MTk2MyAyLjAyMzEtNC4yMzAzdi0yNC4wMzNoLTMuODAxMXEtNC40MTQzIDAtNi40Mzc0IDAuOTE5NjMtMi4wMjMxIDAuOTE5NjMtMi4wMjMxIDQuMjMwM3oiIHN0cm9rZS13aWR0aD0iLjEyMjYyIi8+Cjwvc3ZnPgo=">
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="alert-dialog" class="loc-dialog hidden" aria-hidden="true">
+      <div class="loc-dialog-backdrop" data-alert-close></div>
+      <div
+        class="loc-dialog-panel"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="alert-dialog-title"
+      >
+        <h2 id="alert-dialog-title" class="loc-dialog-title" style="margin-top: 0">还差一点</h2>
+        <p id="alert-dialog-message" class="loc-dialog-message"></p>
+        <div class="loc-dialog-actions">
+          <button type="button" id="alert-dialog-ok" class="loc-dialog-btn loc-dialog-btn--primary">知道了</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirm-dialog" class="loc-dialog hidden" aria-hidden="true">
+      <div class="loc-dialog-backdrop" data-confirm-close></div>
+      <div
+        class="loc-dialog-panel"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="confirm-dialog-title"
+      >
+        <h2 id="confirm-dialog-title" class="loc-dialog-title">确认删除</h2>
+        <p id="confirm-dialog-message" class="loc-dialog-message"></p>
+        <div class="loc-dialog-actions">
+          <button type="button" id="confirm-dialog-cancel" class="loc-dialog-btn loc-dialog-btn--ghost">取消</button>
+          <button type="button" id="confirm-dialog-ok" class="loc-dialog-btn loc-dialog-btn--danger">删除</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="add-dialog" class="loc-dialog hidden" aria-hidden="true">
+      <div class="loc-dialog-backdrop" data-add-close></div>
+      <div
+        class="loc-dialog-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-dialog-title"
+      >
+        <h2 id="add-dialog-title" class="loc-dialog-title" style="margin-top: 0">添加训练类型</h2>
+        <div id="add-dialog-list" class="add-dialog-list"></div>
+        <div class="loc-dialog-actions">
+          <button type="button" id="add-dialog-cancel" class="loc-dialog-btn loc-dialog-btn--ghost">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="loc-dialog" class="loc-dialog hidden" aria-hidden="true">
+      <div class="loc-dialog-backdrop" data-close></div>
+      <div
+        class="loc-dialog-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="loc-dialog-title"
+      >
+        <p id="loc-dialog-label" class="loc-dialog-label font-mono text-[10px] tracking-widest"></p>
+        <h2 id="loc-dialog-title" class="loc-dialog-title"></h2>
+        <input
+          id="loc-dialog-input"
+          type="text"
+          class="loc-dialog-input"
+          placeholder="输入你进行此项训练的首选跑步地点"
+          maxlength="32"
+          autocomplete="off"
+        />
+        <div class="loc-dialog-actions">
+          <button type="button" id="loc-dialog-cancel" class="loc-dialog-btn loc-dialog-btn--ghost">取消</button>
+          <button type="button" id="loc-dialog-save" class="loc-dialog-btn loc-dialog-btn--primary">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
